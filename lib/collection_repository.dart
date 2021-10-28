@@ -45,6 +45,13 @@ abstract class CollectionRepository<T> {
       return null;
   }
 
+  Future<List<T>> searchAll(String searchText) async =>
+      runWithTraceAsync<List<T>>(
+          'findAll',
+          () => _appWrite.database
+              .listDocuments(collectionId: collectionId, search: searchText)
+              .then((response) => _getBodyAsList(response)));
+
   Future<List<T>> findAll(List? filters) async => runWithTraceAsync<List<T>>(
       'findAll',
       () => _appWrite.database
