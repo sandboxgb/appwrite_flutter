@@ -1,6 +1,6 @@
 name: appwrite_flutter
 description: Customization of appWrite library for Flutter
-version: 0.0.5
+version: 0.0.6
 homepage:
 
 # The following line prevents the package from being accidentally published to
@@ -18,8 +18,9 @@ dependencies:
   appwrite: ^1.0.2
   global_configuration: ^2.0.0-nullsafety.1
   logging_lite:
-    path: /home/gilbert/workspaces/opensource/flutterlib/logging_lite
-    version: 0.0.2
+    git:
+      url: https://github.com/sandboxgb/logging-lite.git
+      ref: v0.0.2
 
 dev_dependencies:
   flutter_test:
