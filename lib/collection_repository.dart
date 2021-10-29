@@ -31,10 +31,10 @@ abstract class CollectionRepository<T> {
                   write: writePermissions)
               .then((result) => serializer.fromMap(result.data)));
 
-  Future<T?> findOne(List? filters) async => runWithTraceAsync<T?>(
+  Future<T?> findOne({List? filters}) async => runWithTraceAsync<T?>(
       'findOne',
       () => _appWrite.database
-          .listDocuments(collectionId: collectionId, filters: filters)
+          .listDocuments(collectionId: collectionId, filters: filters, limit: 1)
           .then((response) => _getBody(response)));
 
   Future<T?> _getBody(Response response) async {
@@ -45,19 +45,21 @@ abstract class CollectionRepository<T> {
       return null;
   }
 
-  Future<List<T>> searchAll(
-          String? searchText) async =>
+  Future<List<T>> searchAll({String? searchText, int? limit}) async =>
       runWithTraceAsync<List<T>>(
           'findAll',
           () => _appWrite.database
-              .listDocuments(collectionId: collectionId, search: searchText)
+              .listDocuments(
+                  collectionId: collectionId, search: searchText, limit: limit)
               .then((response) => _getBodyAsList(response)));
 
-  Future<List<T>> findAll(List? filters) async => runWithTraceAsync<List<T>>(
-      'findAll',
-      () => _appWrite.database
-          .listDocuments(collectionId: collectionId, filters: filters)
-          .then((response) => _getBodyAsList(response)));
+  Future<List<T>> findAll({List? filters, int? limit}) async =>
+      runWithTraceAsync<List<T>>(
+          'findAll',
+          () => _appWrite.database
+              .listDocuments(
+                  collectionId: collectionId, filters: filters, limit: limit)
+              .then((response) => _getBodyAsList(response)));
 
   Future<List<T>> _getBodyAsList(Response response) async {
     if (response.hasData) {
