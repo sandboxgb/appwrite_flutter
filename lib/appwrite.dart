@@ -30,11 +30,15 @@ class AppWrite implements IAppWrite {
   Account get accounts => Account(client);
 
   Database get database => Database(client);
+
+  Realtime get realTime => Realtime(client);
 }
 
 extension ResponseExtensions on Response {
+  bool get isQueryResult => (data as Map).containsKey('sum');
   bool get hasData => data['sum'] > 0;
   List<dynamic> get documents => data['documents'];
+  List<dynamic> get collections => data['collections'];
 }
 
 List<String> userPermission(String userId) => ['user:$userId'];
