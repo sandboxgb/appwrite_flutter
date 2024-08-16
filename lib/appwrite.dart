@@ -1,6 +1,5 @@
 library appwrite_flutter;
 
-import 'package:appwrite_flutter/users.dart';
 import 'package:dart_appwrite/dart_appwrite.dart' as aw_server;
 import 'package:logging_lite/logging.dart';
 import 'package:appwrite/appwrite.dart' as aw_client;
@@ -8,6 +7,7 @@ import 'package:global_configuration/global_configuration.dart';
 
 const APPWRITE_ENDPOINT = "api_endpoint";
 const APPWRITE_PROJECT_ID = "project_id";
+const REALTIME_DATABASE_ID = "REALTIME_DATABASE_ID";
 
 abstract class IAppWrite {
   aw_client.Account get accounts;
