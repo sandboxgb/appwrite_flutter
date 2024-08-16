@@ -1,6 +1,7 @@
 library appwrite_flutter;
 
 import 'package:appwrite/appwrite.dart';
+import 'package:appwrite/models.dart' as aw_models;
 import 'package:logging_lite/run_with_trace.dart';
 import 'package:appwrite_flutter/appwrite.dart';
 
@@ -18,6 +19,12 @@ class User {
 
   static User fromMap(Map<String, dynamic> map) =>
       User(id: map['\$id'], name: map['name'], email: map['email']);
+  
+  static User fromUser(aw_models.User user) =>
+      User(
+        id: user.$id,
+        name: user.name, 
+        email: user.email);
 }
 
 class UserSession {
@@ -34,6 +41,19 @@ class UserSession {
 
   static UserSession fromMap(Map<String, dynamic> map) => UserSession(
       id: map['\$id'], userId: map['userId'], provider: map['provider']);
+
+  static UserSession fromToken(aw_models.Token token) => 
+  UserSession(
+      id: token.$id, 
+      userId: token.userId, 
+      provider: 'email'
+      );
+  
+  static UserSession fromSession(aw_models.Session session) => 
+    UserSession(
+      id:session.$id, 
+      userId: session.userId, 
+      provider: session.provider);
 }
 
 class UserRepository {
@@ -45,18 +65,23 @@ class UserRepository {
       runWithTraceAsync<UserSession>(
           'login',
           () => _appWrite.accounts
-              .createSession(email: email, password: password)
-              .then((response) => UserSession.fromMap(response.data)));
+              .createEmailPasswordSession(email: email, password: password,)
+              .then((response) => UserSession.fromSession(response)));
 
   Future<User> register(String name, String email, String password) async =>
       runWithTraceAsync<User>(
           'register',
           () => _appWrite.accounts
-              .create(name: name, email: email, password: password)
-              .then((response) => User.fromMap(response.data)));
+              .create(
+                userId: ID.unique(),
+                name: name, 
+                email: email, 
+                password: password
+                )
+              .then((response) => User.fromUser(response)));
 
-  Future<Response> recoverPassword(String email) async =>
-      runWithTraceAsync<Response>(
+  Future<aw_models.Token> recoverPassword(String email) async =>
+      runWithTraceAsync<aw_models.Token>(
           'recover password',
           () => _appWrite.accounts
               .createRecovery(email: email, url: 'http://localhost'));
@@ -65,24 +90,28 @@ class UserRepository {
       'get current user',
       () => _appWrite.accounts
           .get()
-          .then((response) => User.fromMap(response.data)));
+          .then((response) => User.fromUser(response)));
 
   Future<void> logOff() async => runWithTraceAsync<void>(
       'logOff', () => _appWrite.accounts.deleteSessions());
 
   Future<void> removeCurrentUser() async => runWithTraceAsync<void>(
-      'remove current user', () => _appWrite.accounts.delete());
+      'remove current user', () async {
+        User user = await getCurrentUser();
+        _appWrite.users.delete(userId: user.id);
+        return;
+      });
 
   Future<UserSession> anonymousLogin() async => runWithTraceAsync<UserSession>(
       'anonymous login',
       () => _appWrite.accounts
           .createAnonymousSession()
-          .then((response) => UserSession.fromMap(response.data)));
+          .then((response) => UserSession.fromSession(response)));
 
   Future<UserSession> magicLinkLogin(String email) async =>
       runWithTraceAsync<UserSession>(
           'magic link login',
           () => _appWrite.accounts
-              .createMagicURLSession(email: email)
-              .then((response) => UserSession.fromMap(response.data)));
+              .createMagicURLToken(userId: ID.unique(), email: email)
+              .then((response) => UserSession.fromToken(response)));
 }

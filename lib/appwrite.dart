@@ -1,25 +1,29 @@
 library appwrite_flutter;
 
+import 'package:appwrite_flutter/users.dart';
+import 'package:dart_appwrite/dart_appwrite.dart' as aw_server;
 import 'package:logging_lite/logging.dart';
-import 'package:appwrite/appwrite.dart';
+import 'package:appwrite/appwrite.dart' as aw_client;
 import 'package:global_configuration/global_configuration.dart';
 
 const APPWRITE_ENDPOINT = "api_endpoint";
 const APPWRITE_PROJECT_ID = "project_id";
 
 abstract class IAppWrite {
-  Account get accounts;
-  Database get database;
+  aw_client.Account get accounts;
+  aw_server.Users get users;
+  aw_client.Databases get database;
 }
 
 class AppWrite implements IAppWrite {
-  Client? _client;
+  aw_client.Client? _client;
+  aw_server.Client? _serverClient;
   final ENDPOINT = GlobalConfiguration().getValue(APPWRITE_ENDPOINT);
   final PROJECT_ID = GlobalConfiguration().getValue(APPWRITE_PROJECT_ID);
 
-  Client get client {
+  aw_client.Client get client {
     if (_client == null) {
-      _client = Client(endPoint: ENDPOINT);
+      _client = aw_client.Client(endPoint: ENDPOINT);
       _client!.setProject(PROJECT_ID);
       logInfo(
           'Appwrite client created for ${ENDPOINT}?projectId=${PROJECT_ID}');
@@ -27,18 +31,24 @@ class AppWrite implements IAppWrite {
     return _client!;
   }
 
-  Account get accounts => Account(client);
+  aw_server.Client get serverClient {
+    if (_serverClient == null) {
+      _serverClient = aw_server.Client(endPoint: ENDPOINT);
+      _serverClient!.setProject(PROJECT_ID);
+      logInfo(
+          'Appwrite backend created for ${ENDPOINT}?projectId=${PROJECT_ID}');
+    }
+    return _serverClient!;
+  }
 
-  Database get database => Database(client);
+  aw_client.Account get accounts => aw_client.Account(client);
 
-  Realtime get realTime => Realtime(client);
+  aw_client.Databases get database => aw_client.Databases(client);
+
+  aw_client.Realtime get realTime => aw_client.Realtime(client);
+
+  aw_server.Users get users => aw_server.Users(serverClient); 
 }
 
-extension ResponseExtensions on Response {
-  bool get isQueryResult => (data as Map).containsKey('sum');
-  bool get hasData => data['sum'] > 0;
-  List<dynamic> get documents => data['documents'];
-  List<dynamic> get collections => data['collections'];
-}
 
 List<String> userPermission(String userId) => ['user:$userId'];
