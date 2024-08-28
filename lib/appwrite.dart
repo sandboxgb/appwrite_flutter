@@ -13,6 +13,7 @@ abstract class IAppWrite {
   aw_client.Account get accounts;
   aw_server.Users get users;
   aw_client.Databases get database;
+  aw_client.Functions get functions;
 }
 
 class AppWrite implements IAppWrite {
@@ -47,7 +48,9 @@ class AppWrite implements IAppWrite {
 
   aw_client.Realtime get realTime => aw_client.Realtime(client);
 
-  aw_server.Users get users => aw_server.Users(serverClient); 
+  aw_server.Users get users => aw_server.Users(serverClient);
+
+  aw_client.Functions get functions => aw_client.Functions(client);
 }
 
 

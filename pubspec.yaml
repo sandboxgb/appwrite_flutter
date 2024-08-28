@@ -1,7 +1,7 @@
 name: appwrite_flutter
 description: Customization of appWrite library for Flutter
-version: 0.0.11
-homepage:
+version: 0.0.12
+homepage: https://autanalabs.com
 
 # The following line prevents the package from being accidentally published to
 # pub.dev using `pub publish`. This is preferred for private packages.
